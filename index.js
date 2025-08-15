@@ -40,7 +40,7 @@ let allComparisons = []
 
 
 const faceMatcher = (desOne, desTwo, userName, userId) => {
-  const desOneParsed = JSON.parse(desOne);
+  const desOneParsed =  Array.isArray(desOne) ? desOne : JSON.parse(desOne);
 
   let differenceOfSquares = [];
 
@@ -75,7 +75,7 @@ const faceMatcher = (desOne, desTwo, userName, userId) => {
 
 
 const faceMatcherForLogin = (desOne, desTwo) => {
-  const desOneParsed = JSON.parse(desOne);
+  const desOneParsed = Array.isArray(desOne) ? desOne : JSON.parse(desOne);
 
   let differenceOfSquares = [];
 
@@ -133,10 +133,13 @@ app.post("/sendfacedata", async (req, res) => {
   const { empName, descriptorArray } = req.body;
 
 
-  const currentUserFaceParsed = JSON.parse(descriptorArray);
+  let currentUserFaceParsed = Array.isArray(descriptorArray) ? descriptorArray : Array.from(JSON.parse(descriptorArray)) ;
+  
   const [rows] = await pool.query("SELECT * FROM facedata");
 
   // console.log(empName, descriptorArray);
+
+  console.log(currentUserFaceParsed)
 
 
 
@@ -144,10 +147,18 @@ app.post("/sendfacedata", async (req, res) => {
 
 
   for (let each of rows) {
-    faceMatcher(each.descriptorArr, currentUserFaceParsed, each.username, each.id);
+    if (each.descriptorArr) {
+      faceMatcher(each.descriptorArr, currentUserFaceParsed, each.username, each.id);
+
+    }
   }
 
   const matchResult = findIfNoMatches(allComparisons)
+
+  // let dataInArr = []
+  // for (let each of currentUserFaceParsed) {
+  //   dataInArr.push(each)
+  // }
 
   if (!matchResult) {
     res.status(200).json({
@@ -158,7 +169,7 @@ app.post("/sendfacedata", async (req, res) => {
     try {
       const [rows] = await pool.query(
         "INSERT INTO facedata (username,  descriptorArr) VALUES (?, ?)",
-        [empName, descriptorArray]
+        [empName, JSON.stringify(currentUserFaceParsed)]
       );
       res.json({
         success: true,
@@ -258,7 +269,6 @@ app.get("/hello", (req, res) => {
 
 app.post("/loginface", async (req, res) => {
 
-  // console.log(req)
 
   if (!req.body.userId || !req.body.userFace ) {
     res.status(501).json({
@@ -276,25 +286,19 @@ app.post("/loginface", async (req, res) => {
  
 
 
-  // const currentUserFaceParsed = JSON.parse(JSON.stringify(userFace));
-  const currentUserFaceParsed = JSON.parse(userFace);
-
-
-  // fo/r (let each of currentUserFaceParsed) {
-  //   console.log(each)
-  // }
-
-
-
-
+  let currentUserFaceParsed = Array.isArray(userFace) ? userFace : JSON.parse(userFace);
   const [rows] = await pool.query("SELECT * FROM facedata WHERE ID = ?", [userId]);
 
+  let result = "face not registered for this user"
 
 
+if (rows[0].descriptorArr) {
+  result =  faceMatcherForLogin(rows[0].descriptorArr, currentUserFaceParsed);
 
 
-   const result =  faceMatcherForLogin(rows[0].descriptorArr, currentUserFaceParsed);
+}
 
+   
 
    res.status(200).json({
     success:  true,
