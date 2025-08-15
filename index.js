@@ -40,6 +40,8 @@ let allComparisons = []
 
 
 const faceMatcher = (desOne, desTwo, userName, userId) => {
+  // console.log(desOne)
+  // console.log(desTwo)
   const desOneParsed =  Array.isArray(desOne) ? desOne : JSON.parse(desOne);
 
   let differenceOfSquares = [];
@@ -270,9 +272,9 @@ app.get("/hello", (req, res) => {
 app.post("/loginface", async (req, res) => {
 
 
-  if (!req.body.userId || !req.body.userFace ) {
+  if (!req.body.userFace ) {
     res.status(501).json({
-      error: "Face and User Id are required!"
+      error: "Face array is required!"
     })
 
     return
@@ -281,30 +283,87 @@ app.post("/loginface", async (req, res) => {
 
   
 
-  let {  userId, userFace } = req.body;
+  let { userFace } = req.body;
 
  
 
 
-  let currentUserFaceParsed = Array.isArray(userFace) ? userFace : JSON.parse(userFace);
-  const [rows] = await pool.query("SELECT * FROM facedata WHERE ID = ?", [userId]);
-
-  let result = "face not registered for this user"
+  allComparisons = []
 
 
-if (rows[0].descriptorArr) {
-  result =  faceMatcherForLogin(rows[0].descriptorArr, currentUserFaceParsed);
+
+  let currentUserFaceParsed = Array.isArray(userFace) ? userFace : Array.from(JSON.parse(userFace)) ;
+  
+  const [rows] = await pool.query("SELECT * FROM facedata");
+
+  // console.log(empName, descriptorArray);
+
+  // console.log(currentUserFaceParsed)
 
 
+
+
+
+
+  for (let each of rows) {
+    if (each.descriptorArr) {
+      faceMatcher(each.descriptorArr, currentUserFaceParsed, each.username, each.id);
+
+    }
+  }
+
+
+  console.log(allComparisons)
+
+
+
+
+
+    let bestMatch = allComparisons[0].distanceIndicator
+  let bestMatchUserName = allComparisons[0].personName
+  let bestMatchUserId = allComparisons[0].personId
+
+
+  const matchResult = findIfNoMatches(allComparisons)
+
+
+
+ if (matchResult) {
+  res.json({
+    success: true,
+    bestMatchFace: "No matching faces found",
+    indicator: null
+  });
+
+
+ } else {
+  for (let y = 0 ; y < allComparisons.length; y++) {
+    console.log(allComparisons[y].distanceIndicator)
+    if (allComparisons[y].distanceIndicator < bestMatch) {
+        bestMatch = allComparisons[y].distanceIndicator
+        bestMatchUserName = allComparisons[y].personName
+        bestMatchUserId = allComparisons[y].personId
+        console.log(allComparisons[y].personName, bestMatchUserName)
+    }
 }
 
-   
+console.log(bestMatchUserName)
 
-   res.status(200).json({
-    success:  true,
-    matchResult : result
-   })
-  
+res.json({
+  success: true,
+  bestMatchFace: bestMatchUserName,
+  id: bestMatchUserId,
+  indicator: bestMatch
+
+});
+
+
+
+ }
+
+
+
+
 
 
  
