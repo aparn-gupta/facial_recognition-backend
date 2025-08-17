@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
+const infoRoutes = require("./routes/info")
 
 dotenv.config();
 
@@ -257,6 +259,104 @@ app.post("/loginface", async (req, res) => {
     });
   }
 });
+
+
+app.post('/signinwithpassword', async (req, res) => {
+  
+  const {manualUsername, password} = req.body
+
+  console.log(manualUsername, password)
+
+
+
+try {
+
+  const hashedPassword = await bcrypt.hash(password, 12)
+  console.log(hashedPassword)
+  const [rows] = await pool.query("INSERT INTO facedata (username, password) VALUES (?, ?)", [manualUsername, hashedPassword])
+
+  res.status(200).json({
+    success: true,
+    result: rows.insertId
+
+  })
+
+
+} catch (err) {
+
+  console.log(err)
+
+
+  res.status(500).json({
+    success: false,
+    message: "Can't execute request"
+  })
+
+
+}
+
+
+
+})
+
+
+app.post('/loginwithpassword', async (req, res) => {
+  
+  const {manualUsername, password} = req.body
+
+  console.log(manualUsername, password)
+
+
+
+try {
+
+ 
+  const [rows] = await pool.query("SELECT * FROM facedata WHERE username = ?", [manualUsername])
+
+  const isPasswordValid  = await bcrypt.compare(password, rows[0].password)
+
+
+
+
+  if (isPasswordValid) {
+    const loginToken = jwt.sign({userId : rows[0].id, username: rows[0].username}, process.env.JWT_SECRET)
+
+    res.status(200).json({
+      success: true,
+      userId: rows[0].id,
+      token: loginToken,
+      userName: rows[0].username
+  
+    })
+
+  } else {
+    res.status(401).json({
+      success: false,
+      message: "Invalid credentials",
+    
+
+    })
+  }
+
+
+
+
+} catch (err) {
+
+  console.log(err)
+
+
+  res.status(500).json({
+    success: false,
+    message: "Can't execute login request"
+  })
+
+
+}
+
+
+
+})
 
 app.listen(PORT, () => {
   console.log("App listening to port " + PORT);
