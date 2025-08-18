@@ -178,6 +178,11 @@ app.post("/sendfacedata", async (req, res) => {
   // const {descriptorArray} = req.body
 });
 
+
+
+
+
+
 app.get("/hello", (req, res) => {
   res.send("Hellooooo");
 });
@@ -262,6 +267,9 @@ app.post("/loginface", async (req, res) => {
 
 
 app.post('/signinwithpassword', async (req, res) => {
+  if (!req.body.manualUsername || !req.body.password) [
+    res.status(400).json({success: false, message: "Username and Password are required for sign in"})
+  ] 
   
   const {manualUsername, password} = req.body
 
@@ -301,6 +309,13 @@ try {
 
 
 app.post('/loginwithpassword', async (req, res) => {
+
+  if (!req.body.manualUsername || !req.body.password) {
+    res.status(400).json({
+      success: false,
+      message: "Username and Password are required for logging in!"
+    })
+  }
   
   const {manualUsername, password} = req.body
 
