@@ -1,26 +1,29 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const mysql = require("mysql2/promise");
-const cors = require("cors");
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt")
 const authMiddleware = require("../middleware/authmiddleware")
+const pool = require("../config/config")
+const infoRouter = express.Router()
+const cors = require("cors");
 
 
-export const infoRouter = express.Router()
+
+
+infoRouter.use(cors())
+
 
 
 
 infoRouter.post('/newfeeling', authMiddleware, async (req, res,) => {
 
-    if (!req.body.title && !req.body.mood && !req.body.feeling ) {
+    if (!req.body.title && !req.body.mood && !req.body.description ) {
         res.status(400).json({success: false, message: "Can't process empty request body. Please fill atleast one of the three fields."})
+        return
     }
 
     const {title, mood, description} = req.body
+    const currentTime  = new Date().toLocaleString()
 try {
 
-    const [rows] = await pool.query("INSERT INTO feelings (title, mood, feeling) VALUES (?, ?, ?);", [title, mood, description] )
+    const [rows] = await pool.query("INSERT INTO feelings (title, mood, feeling_notes, post_time) VALUES (?, ?, ?, ?);", [title, mood, description, currentTime] )
 
     res.status(200).json({
         success: true,
@@ -44,7 +47,7 @@ infoRouter.get('/allfeelings', authMiddleware, async (req, res) => {
 
         res.json({
             success: true,
-            allFeelings: rows[0]
+            allFeelings: rows
             
 
         })
@@ -62,4 +65,4 @@ infoRouter.get('/allfeelings', authMiddleware, async (req, res) => {
 })
 
 
-
+module.exports = infoRouter
