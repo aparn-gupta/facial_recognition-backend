@@ -66,7 +66,7 @@ const faceMatcherForLogin = (desOne, desTwo) => {
   const euclideanDistance = Math.sqrt(sumOfDifferences);
 
   // console.log(euclideanDistance, username);
-  if (euclideanDistance > 0.6) {
+  if (euclideanDistance > 0.5) {
     return false;
   } else {
     return true;
@@ -75,7 +75,7 @@ const faceMatcherForLogin = (desOne, desTwo) => {
 
 const findIfNoMatches = (allFacesArrays) => {
   for (let y = 0; y < allFacesArrays.length; y++) {
-    if (allFacesArrays[y].distanceIndicator < 0.6) {
+    if (allFacesArrays[y].distanceIndicator < 0.5) {
       return false;
     }
   }
@@ -123,6 +123,7 @@ authRouter.post("/sendfacedata", async (req, res) => {
 
   if (!matchResult) {
     res.status(200).json({
+      sucesss: false,
       message: "User already registred!",
     });
   } else {
@@ -131,7 +132,7 @@ authRouter.post("/sendfacedata", async (req, res) => {
         "INSERT INTO facedata (username,  descriptorArr) VALUES (?, ?)",
         [empName, JSON.stringify(currentUserFaceParsed)]
       );
-      res.json({
+      res.status(200).json({
         success: true,
         insertId: rows.insertId,
       });
@@ -162,7 +163,7 @@ authRouter.post("/loginface", async (req, res) => {
       error: "Face array is required!",
     });
 
-    return;
+   
   }
 
   let { userFace } = req.body;
