@@ -12,18 +12,20 @@ infoRouter.use(cors())
 
 
 
-infoRouter.post('/newfeeling', authMiddleware, async (req, res,) => {
+infoRouter.post('/newfeeling/:userid', authMiddleware, async (req, res,) => {
 
     if (!req.body.title && !req.body.mood && !req.body.description ) {
         res.status(400).json({success: false, message: "Can't process empty request body. Please fill atleast one of the three fields."})
         return
     }
 
+    const userId = req.params.userid
+
     const {title, mood, description} = req.body
     const currentTime  = new Date().toLocaleString()
 try {
 
-    const [rows] = await pool.query("INSERT INTO feelings (title, mood, feeling_notes, post_time) VALUES (?, ?, ?, ?);", [title, mood, description, currentTime] )
+    const [rows] = await pool.query("INSERT INTO feelings (title, mood, feeling_notes, post_time, user_id) VALUES (?, ?, ?, ?, ?);", [title, mood, description, currentTime, userId] )
 
     res.status(200).json({
         success: true,

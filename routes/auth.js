@@ -83,13 +83,20 @@ const findIfNoMatches = (allFacesArrays) => {
   return true;
 };
 
-authRouter.post("/sendfacedata", async (req, res) => {
-  //    if (!req.body || !req.body.empName || !req.body.descriptorArray) {
-  //     res.status(400).json({
-  //         error: "must contain username and descriptor array"
-  //     })
+authRouter.post("/registerface", async (req, res) => {
+     if (!req.body || !req.body.empName || !req.body.descriptorArray) {
+      res.status(400).json({
+        success: false,
+          message: "Username and valid facedata is required"
+      })
+
+      return
+
+    }
 
   allComparisons = [];
+
+
 
   const { empName, descriptorArray } = req.body;
 
@@ -159,8 +166,8 @@ authRouter.get("/hello", (req, res) => {
 
 authRouter.post("/loginface", async (req, res) => {
   if (!req.body.userFace) {
-    res.status(501).json({
-      error: "Face array is required!",
+    res.status(400).json({
+      message: "Face array is required!",
     });
 
    
@@ -174,62 +181,84 @@ authRouter.post("/loginface", async (req, res) => {
     ? userFace
     : Array.from(JSON.parse(userFace));
 
-  const [rows] = await pool.query("SELECT * FROM facedata");
 
-  // console.log(empName, descriptorArray);
+    try {
+      const [rows] = await pool.query("SELECT * FROM facedata");
 
-  // console.log(currentUserFaceParsed)
-
-  for (let each of rows) {
-    if (each.descriptorArr) {
-      faceMatcher(
-        each.descriptorArr,
-        currentUserFaceParsed,
-        each.username,
-        each.id
-      );
-    }
-  }
-
-  // console.log(allComparisons);
-
-  let bestMatch = allComparisons[0].distanceIndicator;
-  let bestMatchUserName = allComparisons[0].personName;
-  let bestMatchUserId = allComparisons[0].personId;
-
-  const matchResult = findIfNoMatches(allComparisons);
-
-  if (matchResult) {
-    res.json({
-      success: true,
-      bestMatchFace: "No matching faces found",
-      indicator: null,
-    });
-  } else {
-    for (let y = 0; y < allComparisons.length; y++) {
-      console.log(allComparisons[y].distanceIndicator);
-      if (allComparisons[y].distanceIndicator < bestMatch) {
-        bestMatch = allComparisons[y].distanceIndicator;
-        bestMatchUserName = allComparisons[y].personName;
-        bestMatchUserId = allComparisons[y].personId;
-        console.log(allComparisons[y].personName, bestMatchUserName);
+      // console.log(empName, descriptorArray);
+    
+      // console.log(currentUserFaceParsed)
+    
+      for (let each of rows) {
+        if (each.descriptorArr) {
+          faceMatcher(
+            each.descriptorArr,
+            currentUserFaceParsed,
+            each.username,
+            each.id
+          );
+        }
       }
+    
+      console.log(allComparisons);
+    
+      
+      if (!allComparisons.length) {
+        res.status(200).json({success: false, message: "User not found!"})
+        return
+      }
+    
+    
+    
+      let bestMatch = allComparisons[0].distanceIndicator;
+      let bestMatchUserName = allComparisons[0].personName;
+      let bestMatchUserId = allComparisons[0].personId;
+    
+      const matchResult = findIfNoMatches(allComparisons);
+    
+      if (matchResult) {
+        res.status(200).json({
+          success: true,
+          bestMatchFace: "User not found",
+          indicator: null,
+        });
+      } else {
+        for (let y = 0; y < allComparisons.length; y++) {
+          console.log(allComparisons[y].distanceIndicator);
+          if (allComparisons[y].distanceIndicator < bestMatch) {
+            bestMatch = allComparisons[y].distanceIndicator;
+            bestMatchUserName = allComparisons[y].personName;
+            bestMatchUserId = allComparisons[y].personId;
+            console.log(allComparisons[y].personName, bestMatchUserName);
+          }
+        }
+    
+        // console.log(bestMatchUserName);
+    
+       const loginToken =  jwt.sign({userId: bestMatchUserId, bestMatchFace: bestMatchUserName}, process.env.JWT_SECRET)
+    
+        console.log(loginToken)
+    
+        res.status(200).json({
+          success: true,
+          bestMatchFace: bestMatchUserName,
+          id: bestMatchUserId,
+          indicator: bestMatch,
+          loginToken: loginToken
+        });
+      }
+
+    }  catch (err) {
+      console.error(err)
+      res.status(500).json({
+        success: false,
+        message: "Internal server error"
+
+      })
+
     }
 
-    // console.log(bestMatchUserName);
-
-   const loginToken =  jwt.sign({userId: bestMatchUserId, bestMatchFace: bestMatchUserName}, process.env.JWT_SECRET)
-
-    console.log(loginToken)
-
-    res.json({
-      success: true,
-      bestMatchFace: bestMatchUserName,
-      id: bestMatchUserId,
-      indicator: bestMatch,
-      loginToken: loginToken
-    });
-  }
+ 
 });
 
 
