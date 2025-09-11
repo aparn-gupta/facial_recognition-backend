@@ -42,10 +42,11 @@ try {
 })
 
 
-infoRouter.get('/allfeelings', authMiddleware, async (req, res) => {
+infoRouter.get('/allfeelings/:userid', authMiddleware, async (req, res) => {
+    const userId = req.params.userid
 
     try {
-        const [rows]  = await pool.query("SELECT * from feelings")
+        const [rows]  = await pool.query("SELECT * from feelings where user_id  = ?", [userId])
 
         res.json({
             success: true,
