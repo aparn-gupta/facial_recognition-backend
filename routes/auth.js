@@ -167,7 +167,7 @@ authRouter.get("/hello", (req, res) => {
 authRouter.post("/loginface", async (req, res) => {
   if (!req.body.userFace) {
     res.status(400).json({
-      message: "Face array is required!",
+      message: "Face data is required!",
     });
 
    
@@ -263,9 +263,10 @@ authRouter.post("/loginface", async (req, res) => {
 
 
 authRouter.post('/signinwithpassword', async (req, res) => {
-  if (!req.body.manualUsername || !req.body.password) [
+  if (!req.body.manualUsername || !req.body.password) {
     res.status(400).json({success: false, message: "Username and Password are required for sign in"})
-  ] 
+    return
+  }
   
   const {manualUsername, password} = req.body
 
