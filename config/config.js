@@ -15,6 +15,7 @@ dotenv.config();
   const connectPool = async () => {
     try {
       const conn = await pool.getConnection()
+      if (conn) console.log("connected to DB hehe")
       conn.release()
   
     } catch (err) {
