@@ -129,7 +129,7 @@ authRouter.post("/registerface", async (req, res) => {
   // }
 
   if (!matchResult) {
-    res.status(200).json({
+    res.status(401).json({
       sucesss: false,
       message: "User already registred!",
     });
@@ -204,8 +204,8 @@ authRouter.post("/loginface", async (req, res) => {
     
       
       if (!allComparisons.length) {
-        res.status(200).json({success: false, message: "User not found!"})
-        return
+        return res.status(401).json({success: false, message: "User not found!"})
+        
       }
     
     
@@ -217,10 +217,10 @@ authRouter.post("/loginface", async (req, res) => {
       const matchResult = findIfNoMatches(allComparisons);
     
       if (matchResult) {
-        res.status(200).json({
-          success: true,
-          bestMatchFace: "User not found",
-          indicator: null,
+        return res.status(401).json({
+          success: false,
+          message: "User not found",
+          
         });
       } else {
         for (let y = 0; y < allComparisons.length; y++) {
@@ -239,7 +239,7 @@ authRouter.post("/loginface", async (req, res) => {
     
         console.log(loginToken)
     
-        res.status(200).json({
+        return res.status(200).json({
           success: true,
           bestMatchFace: bestMatchUserName,
           id: bestMatchUserId,
