@@ -17,23 +17,24 @@ dotenv.config();
    connectionString: process.env.DB_URI,
    ssl: {
     rejectUnauthorized: false,
+    max: 1, 
   },
   });
 
 
 
-  const connectPool = async () => {
-    try {
-      const client = await pool.connect()
-      const result  = await client.query("select * from facedata")
-      console.log(result.rows)
+  // const connectPool = async () => {
+  //   try {
+  //     const client = await pool.connect()
+  //     const result  = await client.query("select * from facedata")
+  //     console.log(result.rows)
   
-    } catch (err) {
-      console.log(err)
-    }
-  }
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
 
-  connectPool()
+  // connectPool()
   
 
 
