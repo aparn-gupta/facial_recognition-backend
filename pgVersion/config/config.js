@@ -17,8 +17,9 @@ dotenv.config();
    connectionString: process.env.DB_URI,
    ssl: {
     rejectUnauthorized: false,
-    max: 1, 
+   
   },
+  max: 1, 
   });
 
 
