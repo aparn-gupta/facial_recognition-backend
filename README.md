@@ -62,4 +62,4 @@ https://innernote.vercel.app/
 
 ## Notes
 
-A small practice project built during my early learning phase. The implementation focuses on simple CRUD operations and basic API usage.
+A small practice project built during my early learning phase. The implementation focuses on basic API usage for biometric authentication and fundamental auth workflow.
