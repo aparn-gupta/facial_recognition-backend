@@ -32,7 +32,7 @@ exposes REST API endpoints connected to a MySQL database.
 
 1. Clone the repository
 
-git clone <repo>
+git clone https://github.com/aparn-gupta/facial_recognition-backend.git
 
 2. Install dependencies
 
@@ -46,7 +46,7 @@ cp .env.example .env
 
 Run the schema file:
 
-mysql -u root -p < database/faceapi.sql
+mysql -u root -p database/faceapi.sql
 
 (Schema file contains sample data and users for testing biometric authentication, with  bcrypt-hashed dummy credentials. User can sign in first to create their own account)
 
