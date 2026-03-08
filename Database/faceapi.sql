@@ -36,6 +36,8 @@ CREATE TABLE `facedata` (
 
 --
 -- Dumping data for table `facedata`
+
+
 --
 
 INSERT INTO `facedata` (`id`, `username`, `descriptorArr`, `password`) VALUES

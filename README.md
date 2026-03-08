@@ -46,7 +46,9 @@ cp .env.example .env
 
 Run the schema file:
 
-mysql -u root -p < database/schema.sql
+mysql -u root -p < database/faceapi.sql
+
+(Schema file contains sample data and users for testing biometric authentication, with  bcrypt-hashed dummy credentials. User can sign in first to create their own account)
 
 5. Start server
 
