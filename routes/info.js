@@ -42,7 +42,7 @@ try {
 })
 
 
-infoRouter.get('/allfeelings/:userid', authMiddleware, async (req, res) => {
+infoRouter.get('/allfeelings/:userid', async (req, res) => {
     const userId = req.params.userid
 
     try {
