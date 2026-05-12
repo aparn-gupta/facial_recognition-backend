@@ -1,16 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-const infoRoutes = require("./routes/info")
-const authRoutes = require("./routes/auth")
-const path = require("path")
-
-
+const infoRoutes = require("./routes/info");
+const authRoutes = require("./routes/auth");
+const path = require("path");
 
 const app = express();
-
-
-
-
 
 // app.use(
 //   cors({
@@ -21,33 +15,24 @@ const app = express();
 
 // );
 
-app.use(cors())
+app.use(cors());
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-
-
 // const PORT = process.env.PORT || 3000;
-const PORT = 3607
+const PORT = 3607;
 
+app.use("/auth", authRoutes);
+app.use("/info", infoRoutes);
 
+app.use(express.static(path.join(__dirname, "public")));
 
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
-app.use('/auth', authRoutes)
-app.use('/info', infoRoutes)
-
-
-app.use(express.static(path.join(__dirname, 'public')))
-
-app.get(/.*/,  (req, res) => {
-   res.sendFile(path.resolve(__dirname, 'public', 'index.html'))
-})
-
-
-
-
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("App listening to port " + PORT);
 });
