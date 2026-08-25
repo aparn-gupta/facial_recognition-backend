@@ -50,13 +50,13 @@ const signer = new Signer({
   username: process.env.AWS_USERNAME,
 });
 
-console.log(
-  process.env.AWS_REGION,
-  process.env.AWS_HOST,
-  process.env.AWS_DB,
-  process.env.AWS_PORT,
-  process.env.AWS_USERNAME,
-);
+// console.log(
+//   process.env.AWS_REGION,
+//   process.env.AWS_HOST,
+//   process.env.AWS_DB,
+//   process.env.AWS_PORT,
+//   process.env.AWS_USERNAME,
+// );
 
 const pool = new Pool({
   host: process.env.AWS_HOST,
